@@ -7,15 +7,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,9 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.cryptopricechecker.ui.theme.CryptoPriceCheckerTheme
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,19 +31,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CryptoPriceCheckerTheme {
-                val cryptoCoins = mutableListOf<CryptoData>()
-                for(i in 1..10) {
-                    val testName = "Crypto " + i
-                    val testPrice = i * 10000
-                    val testImage = painterResource(R.drawable.bitcoin)
-                    val data = CryptoData(testName, testPrice, testImage)
 
-                    cryptoCoins.add(data)
-                }
-
-                for(data in cryptoCoins) {
-                    Log.d("TEST DATA", "TEST: " + data.name + " " + data.price)
-                }
 
                 CryptoPricePager()
             }
@@ -60,12 +41,27 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun CryptoPricePager() {
+
+    var cryptoCoins = emptyArray<CryptoData>()
+    for(i in 1..10) {
+        val testName = "Crypto " + i
+        val testPrice = i * 10000
+        val testImage = painterResource(R.drawable.bitcoin)
+        val data = CryptoData(testName, testPrice, testImage)
+
+        cryptoCoins += data
+    }
+
+
     val pagerState = rememberPagerState(initialPage = 0) {
-        3
+        cryptoCoins.size
     }
     var selectedTab by remember {
         mutableIntStateOf(pagerState.currentPage)
     }
+
+
+
 
     Column {
         TabRow(selectedTabIndex = selectedTab) {
@@ -74,29 +70,24 @@ fun CryptoPricePager() {
     }
 
     HorizontalPager(state = pagerState) { currentPage ->
-        ScreenOne(
-            pageNumber = currentPage.toString()
-        )
+        CryptoPage(cryptoCoins, currentPage)
     }
 }
 
 @Composable
-fun CryptoPage(cryptoName: String, cryptoPrice: Int, cryptoImage: Painter, cryptoData: CryptoData) {
-    Text(text = cryptoName)
-}
-
-@Composable
-fun ScreenOne(pageNumber: String) {
+fun CryptoPage(cryptoCoins: Array<CryptoData>, pageNumber: Int) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(text = pageNumber)
+        Text(text = cryptoCoins[pageNumber].name)
+        Text(text = cryptoCoins[pageNumber].price.toString())
+        Image(painter = cryptoCoins[pageNumber].image,
+              contentDescription = "Crypto Icon")
+
     }
-
 }
-
 
 @Preview(showBackground = true)
 @Composable
